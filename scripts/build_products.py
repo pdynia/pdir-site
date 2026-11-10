@@ -85,10 +85,17 @@ def load(source):
     return products, membership
 
 
+# Groups checked first when a product sits in several collections: the more specific
+# form (liposomal) beats the ingredient group (e.g. liposomal vitamin C is listed under
+# both vitamin-c and liposomes).
+GROUP_PRIORITY = ["Liposomal formulas & coenzyme Q10"]
+
+
 def group_for(groups, cols, override=None):
     if override:
         return override
-    for title, handles in groups:
+    ordered = sorted(groups, key=lambda g: (g[0] not in GROUP_PRIORITY, GROUP_PRIORITY.index(g[0]) if g[0] in GROUP_PRIORITY else 0))
+    for title, handles in ordered:
         if cols & set(handles):
             return title
     return groups[-1][0]

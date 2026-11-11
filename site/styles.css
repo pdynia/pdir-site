@@ -504,3 +504,68 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
   .menu-btn { display: inline-flex; }
   .product-ext { padding: 12px 0 0; }
 }
+
+/* ---------- Studio photography ---------- */
+/* Hero: one large photo in the PDIR circle, the line running behind it */
+.hero-visual { max-width: 560px; }
+.hero-photo { position: absolute; inset: 3%; width: 94%; height: 94%; border-radius: 50%; object-fit: cover; z-index: 1; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6); }
+.hero-line { z-index: 0; }
+
+.about-photo { display: block; width: 100%; max-width: 340px; aspect-ratio: 1; object-fit: cover; border-radius: 24px; margin-top: 32px; }
+
+/* Category tiles: photo fills the card, label on a dark fade */
+.tile { display: block; padding: 0; aspect-ratio: 4 / 5; background: var(--brand); }
+.tile img { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; margin: 0; filter: none; transition: transform 0.5s ease; }
+.tile:hover img { transform: scale(1.05); }
+.tile::before { content: ""; position: absolute; inset: 40% 0 0; z-index: 1; background: linear-gradient(to top, rgba(10, 16, 6, 0.82), rgba(10, 16, 6, 0)); }
+.tile-text { position: absolute; z-index: 2; left: 22px; right: 54px; bottom: 20px; display: grid; gap: 2px; }
+.tile-name { color: #ffffff; font-size: 1.3rem; }
+.tile-count { color: rgba(255, 255, 255, 0.78); margin: 0; }
+.tile::after { z-index: 2; color: #ffffff; }
+
+/* Spotlight photo */
+.spot-figure { background: #3b2a78; }
+.spot-figure::before, .spot-figure::after { content: none; }
+.spot-figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: none; }
+.spot-figure figcaption { z-index: 2; color: rgba(255, 255, 255, 0.85); }
+
+/* Gallery strip */
+.gallery { display: grid; grid-template-columns: repeat(6, 1fr); }
+.gallery img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
+
+/* Markets map */
+.markets-head { align-items: center; margin-bottom: 40px; }
+.mena-map { width: 100%; height: auto; overflow: visible; color: var(--brand); }
+.map-arcs path { fill: none; stroke: currentColor; stroke-width: 1; opacity: 0.45; }
+.map-main { fill: none; stroke: currentColor; stroke-width: 2; stroke-dasharray: 2 7; stroke-linecap: round; }
+.map-dots circle { fill: var(--tint); stroke: currentColor; stroke-width: 1.6; }
+.map-hub { fill: var(--tint); stroke: currentColor; stroke-width: 2.4; }
+.map-hub-line { stroke: currentColor; stroke-width: 2.4; }
+.map-labels text { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; fill: var(--ink-soft); }
+.map-labels .map-strong { font-size: 13px; fill: var(--brand); font-weight: 600; }
+#markets .markets { grid-template-columns: repeat(6, 1fr); }
+
+/* Products page banner */
+.page-hero-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
+.page-hero-photo { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 24px; }
+
+@media (prefers-reduced-motion: reduce) { .tile img { transition: none; } }
+@media (max-width: 960px) {
+  #markets .markets { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 760px) {
+  .hero-visual { max-width: 340px; }
+  .about-photo { max-width: none; aspect-ratio: 4 / 3; margin-top: 24px; }
+  .tile { padding: 0; }
+  .tile-text { left: 14px; right: 14px; bottom: 14px; }
+  .tile-name { font-size: 1.05rem; }
+  .tile::after { content: none; }
+  .gallery { grid-template-columns: repeat(3, 1fr); }
+  #markets .markets { grid-template-columns: repeat(2, 1fr); }
+  .markets-head { margin-bottom: 24px; }
+  .map-labels text { font-size: 13px; }
+  .map-labels .map-strong { font-size: 14px; }
+  .page-hero-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+
+.range-more .btn span { font-size: inherit; color: inherit; margin: 0; }

@@ -238,10 +238,13 @@ TEMPLATE = """<!doctype html>
 
   <main id="top">
     <section class="page-hero">
-      <div class="wrap">
-        <p class="eyebrow">Our range &middot; Visanto</p>
-        <h1>Products</h1>
-        <p class="lead">We distribute the full Visanto range across the MENA region from our warehouse in Dubai: {total} products in three groups. For trade prices, availability and registration documents, please contact us.</p>
+      <div class="wrap page-hero-grid">
+        <div>
+          <p class="eyebrow">Our range &middot; Visanto</p>
+          <h1>Products</h1>
+          <p class="lead">We distribute the full Visanto range across the MENA region from our warehouse in Dubai: {total} products in three groups. For trade prices, availability and registration documents, please contact us.</p>
+        </div>
+        <img class="page-hero-photo" src="assets/studio/tranol-sachets.webp" alt="Tranol sachets on a blue studio set" width="800" height="800">
       </div>
     </section>
     <nav class="chips-bar" aria-label="Product groups">

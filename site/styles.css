@@ -584,3 +584,12 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
 .latest-label span { font-size: var(--label); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.8); }
 .latest-label strong { font-size: 1.25rem; font-weight: 400; }
 @media (prefers-reduced-motion: reduce) { .page-hero-latest .page-hero-photo { transition: none; } }
+
+/* Banner shows the whole square studio image, never zoomed or cropped */
+.page-hero-grid { grid-template-columns: 1fr minmax(0, 400px); }
+.page-hero-photo { aspect-ratio: 1; object-position: center; }
+.page-hero-latest:hover .page-hero-photo { transform: none; }
+@media (max-width: 760px) {
+  .page-hero-grid { grid-template-columns: 1fr; }
+  .page-hero-latest { max-width: 360px; }
+}

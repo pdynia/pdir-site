@@ -547,7 +547,7 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
 
 /* Products page banner */
 .page-hero-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
-.page-hero-photo { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 24px; }
+.page-hero-photo { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: center 40%; border-radius: 24px; }
 
 @media (prefers-reduced-motion: reduce) { .tile img { transition: none; } }
 @media (max-width: 960px) {
@@ -575,3 +575,12 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
 @media (max-width: 760px) {
   .wide-photo { aspect-ratio: 16 / 10; border-radius: 18px; margin-top: 32px; }
 }
+
+/* Products banner: newest product, refreshed by scripts/build_products.py */
+.page-hero-latest { position: relative; display: block; border-radius: 24px; overflow: hidden; background: #ffffff; color: #ffffff; text-decoration: none; }
+.page-hero-latest .page-hero-photo { border-radius: 0; transition: transform 0.5s ease; }
+.page-hero-latest:hover .page-hero-photo { transform: scale(1.04); }
+.latest-label { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 2px; padding: 48px 22px 18px; background: linear-gradient(to top, rgba(10, 16, 6, 0.8), rgba(10, 16, 6, 0)); }
+.latest-label span { font-size: var(--label); letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 255, 255, 0.8); }
+.latest-label strong { font-size: 1.25rem; font-weight: 400; }
+@media (prefers-reduced-motion: reduce) { .page-hero-latest .page-hero-photo { transition: none; } }

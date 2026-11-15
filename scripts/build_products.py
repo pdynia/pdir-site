@@ -118,6 +118,9 @@ def classify(products, membership):
             "name": NAME_OVERRIDES.get(p["handle"], title),
             "url": f"{STORE}/products/{p['handle']}",
             "img": p["images"][0]["src"] if p["images"] else "",
+            "published": p.get("published_at") or "",
+            # Visanto's studio shots are the gallery images named "...kompozycja...".
+            "studio": next((im["src"] for im in p["images"] if "kompoz" in im["src"].lower()), ""),
         }
         if p["product_type"] == "Book" or "books" in cols:
             # Untagged books are the publisher's Polish titles, apart from English editions.
@@ -180,6 +183,21 @@ SECTION_META = [
 ]
 
 
+def latest_product(sections):
+    """Newest supplement in the catalogue, with its banner image saved to site/assets/studio/latest.jpg."""
+    items = [i for group in sections["supplements"].values() for i in group]
+    item = max(items, key=lambda i: i["published"])
+    src = item["studio"] or item["img"]
+    filename = src.split("?")[0].rsplit("/", 1)[-1]
+    url = f"{STORE}/cdn/shop/files/{urllib.parse.quote(filename)}?width=900&format=pjpg"
+    req = urllib.request.Request(url, headers={"User-Agent": "pdir-site-builder"})
+    with urllib.request.urlopen(req, timeout=60) as r:
+        data = r.read()
+    with open(os.path.join(ROOT, "site", "assets", "studio", "latest.jpg"), "wb") as f:
+        f.write(data)
+    return item
+
+
 def render(sections):
     counts = {k: sum(len(v) for v in g.values()) for k, g in sections.items()}
     total = sum(counts.values())
@@ -197,7 +215,11 @@ def render(sections):
                         f'        <ul class="product-grid">\n{cards}\n        </ul>')
         body.append('      </div>\n    </section>')
     today = datetime.date.today().strftime("%B %Y")
-    return TEMPLATE.format(total=total, chips=chips, sections="\n".join(body), updated=today)
+    latest = latest_product(sections)
+    return TEMPLATE.format(total=total, chips=chips, sections="\n".join(body), updated=today,
+                           latest_name=html.escape(latest["name"]),
+                           latest_quote="index.html?product=" + urllib.parse.quote(latest["name"]) + "#contact",
+                           latest_fit="cover" if latest["studio"] else "contain")
 
 
 TEMPLATE = """<!doctype html>
@@ -244,7 +266,10 @@ TEMPLATE = """<!doctype html>
           <h1>Products</h1>
           <p class="lead">We distribute the full Visanto range across the MENA region from our warehouse in Dubai: {total} products in three groups. For trade prices, availability and registration documents, please contact us.</p>
         </div>
-        <img class="page-hero-photo" src="assets/studio/tranol-sachets.webp" alt="Tranol sachets on a blue studio set" width="800" height="800">
+        <a class="page-hero-latest" href="{latest_quote}">
+          <img class="page-hero-photo" src="assets/studio/latest.jpg" alt="{latest_name}" width="900" height="900" style="object-fit: {latest_fit}">
+          <span class="latest-label"><span>New in the range</span><strong>{latest_name}</strong></span>
+        </a>
       </div>
     </section>
     <nav class="chips-bar" aria-label="Product groups">

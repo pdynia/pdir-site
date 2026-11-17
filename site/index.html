@@ -347,7 +347,7 @@
             </div>
           </dl>
         </div>
-        <form class="enquiry" id="enquiry" novalidate data-endpoint=""><!-- EDIT: set data-endpoint to a Formspree/Netlify URL to receive submissions server-side; empty = opens an email -->
+        <form class="enquiry" id="enquiry" novalidate action="https://formspree.io/f/mzerrzbd" method="POST" data-endpoint="https://formspree.io/f/mzerrzbd"><!-- Submissions go to Formspree, which forwards them by email -->
           <h3>Send an enquiry</h3>
           <div class="field-row">
             <label>Company<input type="text" name="company" id="f-company" autocomplete="organization" required></label>
@@ -367,10 +367,12 @@
           </div>
           <label>Message<textarea name="message" id="f-message" rows="4" placeholder="Which products or markets are you interested in?"></textarea></label>
           <input type="hidden" name="product" id="f-product">
+          <input type="hidden" name="_subject" id="f-subject" value="Website enquiry">
+          <input type="text" name="_gotcha" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
           <p class="form-error" id="f-error" hidden>Please fill in company, email, country and your role.</p>
           <div class="form-actions">
             <button type="submit" class="btn btn-light">Send enquiry</button>
-            <span class="form-note" id="f-note">Sent by email to info@pdir.ae</span>
+            <span class="form-note" id="f-note">We reply within one business day</span>
           </div>
           <p class="form-ok" id="f-ok" hidden>Thank you. Your enquiry is ready in your email app; press send and we'll reply within one business day.</p>
         </form>
@@ -428,9 +430,14 @@
         var data = new FormData(form);
         var endpoint = form.getAttribute('data-endpoint');
         if (endpoint) {
+          var btn = form.querySelector('button[type="submit"]');
+          document.getElementById('f-subject').value = 'Website enquiry from ' + data.get('company');
+          data = new FormData(form);
+          btn.disabled = true; btn.textContent = 'Sending…'; ok.hidden = true;
           fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } })
             .then(function (r) { if (!r.ok) throw new Error(); ok.textContent = 'Thank you. We have received your enquiry and will reply within one business day.'; ok.hidden = false; form.reset(); })
-            .catch(function () { err.textContent = 'Sending failed. Please email us at info@pdir.ae.'; err.hidden = false; });
+            .catch(function () { err.textContent = 'Sending failed. Please email us at info@pdir.ae.'; err.hidden = false; })
+            .then(function () { btn.disabled = false; btn.textContent = 'Send enquiry'; });
           return;
         }
         var lines = ['Company: ' + data.get('company'), 'Email: ' + data.get('email'), 'Country: ' + data.get('country'), 'Role: ' + data.get('role')];

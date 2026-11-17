@@ -593,3 +593,7 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
   .page-hero-grid { grid-template-columns: 1fr; }
   .page-hero-latest { max-width: 360px; }
 }
+
+/* Honeypot field for spam bots: off-screen, never shown to people */
+.enquiry .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+.enquiry button:disabled { opacity: 0.6; cursor: default; }

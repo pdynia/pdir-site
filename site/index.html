@@ -40,7 +40,7 @@
 
   <main id="top">
     <section class="c-hero">
-      <img class="c-hero-art" src="assets/lines-hero.svg" alt="" aria-hidden="true">
+      <img data-art="hero" class="c-hero-art" src="assets/lines-hero.svg" alt="" aria-hidden="true">
       <div class="wrap c-hero-copy">
         <h1>European supplements,<br>moved across MENA.</h1>
         <p class="c-lead">We import food supplements made in the European Union, hold them in stock in Dubai, and supply pharmacies, retailers and distributors across the Middle East and North Africa.</p>
@@ -78,7 +78,7 @@
     </section>
 
     <section id="services" class="c-band">
-      <img class="c-band-art" src="assets/lines-band.svg" alt="" aria-hidden="true">
+      <img data-art="band" class="c-band-art" src="assets/lines-band.svg" alt="" aria-hidden="true">
       <div class="wrap">
         <p class="c-label">What we do</p>
         <h2>From the manufacturer<br>to your shelf.</h2>
@@ -255,6 +255,65 @@
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Line art: ruled lines between two slowly moving curves, drawn on canvas.
+    // The static SVG images stay as the fallback (no JS, or reduced motion).
+    (function () {
+      if (!window.requestAnimationFrame || !document.createElement('canvas').getContext) return;
+      var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var TAU = Math.PI * 2, rad = Math.PI / 180;
+      var scenes = {
+        // Hero: a small loop on the left unfurling into a wide sweep; base size 1440 x 560.
+        hero: { w: 1440, h: 560, n: 96, color: '127,156,106', width: 2.6, fit: 'cover',
+          a: function (u, t) { var g = (-255 + 330 * u) * rad + t * 0.10; return [150 + 85 * Math.cos(g), 150 + 85 * Math.sin(g)]; },
+          b: function (u, t) { var g = (-74 + (78 + 5 * Math.sin(t * 0.23)) * u) * rad + 0.035 * Math.sin(t * 0.17); return [620 + 980 * Math.cos(g), 60 + 980 * Math.sin(g)]; },
+          alpha: function (u) { return 0.30 + 0.70 * Math.sin(Math.PI * (0.12 + 0.88 * u)); } },
+        // Band: a ring whose inner and outer edges turn against each other; base size 560 x 560.
+        band: { w: 560, h: 560, n: 120, color: '169,201,154', width: 2.2, fit: 'contain',
+          a: function (u, t) { var g = u * TAU + t * 0.16; var r = 62 + 10 * Math.sin(t * 0.31 + u * TAU); return [280 + r * Math.cos(g), 280 + r * Math.sin(g)]; },
+          b: function (u, t) { var g = u * TAU * 0.86 - 1.2 - t * 0.05; var r = 262 + 14 * Math.sin(u * TAU * 3 + t * 0.4); return [280 + r * Math.cos(g), 280 + r * Math.sin(g)]; },
+          alpha: function (u) { return 0.35 + 0.55 * (0.5 + 0.5 * Math.cos(u * TAU)); } }
+      };
+      document.querySelectorAll('img[data-art]').forEach(function (img) {
+        var sc = scenes[img.getAttribute('data-art')];
+        if (!sc) return;
+        var cv = document.createElement('canvas');
+        cv.className = img.className; cv.setAttribute('aria-hidden', 'true');
+        img.parentNode.insertBefore(cv, img); img.hidden = true;
+        var ctx = cv.getContext('2d'), W = 0, H = 0, k = 1, ox = 0, visible = true, t0 = null;
+        function size() {
+          var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+          W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          k = sc.fit === 'cover' ? Math.max(W / sc.w, H / sc.h) : Math.min(W / sc.w, H / sc.h);
+          ox = sc.fit === 'cover' ? 0 : (W - sc.w * k);
+          ctx.lineCap = 'round';
+        }
+        var last = 0;
+        function draw(t) {
+          last = t;
+          ctx.clearRect(0, 0, W, H);
+          ctx.lineWidth = Math.max(1, sc.width * Math.sqrt(k));
+          for (var i = 0; i < sc.n; i++) {
+            var u = i / (sc.n - 1), p = sc.a(u, t), q = sc.b(u, t);
+            ctx.strokeStyle = 'rgba(' + sc.color + ',' + sc.alpha(u).toFixed(3) + ')';
+            ctx.beginPath(); ctx.moveTo(ox + p[0] * k, p[1] * k); ctx.lineTo(ox + q[0] * k, q[1] * k); ctx.stroke();
+          }
+        }
+        function frame(ms) { if (t0 === null) t0 = ms; draw((ms - t0) / 1000); if (visible) requestAnimationFrame(frame); }
+        size(); draw(0);
+        window.addEventListener('resize', function () { size(); draw(last); });
+        if (still) return;
+        if ('IntersectionObserver' in window) {
+          new IntersectionObserver(function (e) {
+            var now = e[0].isIntersecting;
+            if (now && !visible) { visible = true; requestAnimationFrame(frame); }
+            visible = now;
+          }).observe(cv);
+        }
+        requestAnimationFrame(frame);
+      });
+    })();
 
     // Mobile menu
     (function () {

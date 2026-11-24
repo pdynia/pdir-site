@@ -821,3 +821,7 @@ h3, h4 { font-family: var(--sans); font-weight: 400; color: var(--ink); letter-s
 .c-two .btn { margin-top: auto; }
 @media (max-width: 960px) { .c-hero-copy { padding-left: 20px; } .c-band-art { height: 260px; } .c-band h2 { margin-bottom: 72px; } }
 @media (max-width: 760px) { .c-two h2 { min-height: 0; margin-bottom: 24px; } }
+
+/* Animated line art (canvas replaces the fallback images) */
+canvas.c-band-art { width: 380px; }
+@media (max-width: 960px) { canvas.c-band-art { width: 260px; } }

@@ -42,11 +42,13 @@
     <section class="c-hero">
       <img data-art="hero" class="c-hero-art" src="assets/lines-hero.svg" alt="" aria-hidden="true">
       <div class="wrap c-hero-copy">
+        <div class="c-hero-text">
         <h1>European supplements,<br>moved across MENA.</h1>
         <p class="c-lead">We import food supplements made in the European Union, hold them in stock in Dubai, and supply pharmacies, retailers and distributors across the Middle East and North Africa.</p>
         <div class="c-actions">
           <a class="btn btn-primary" href="products.html">View products</a>
           <a class="c-link" href="#contact">Become a stockist</a>
+        </div>
         </div>
       </div>
     </section>
@@ -256,23 +258,23 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Line art: ruled lines between two slowly moving curves, drawn on canvas.
+    // Line art: thin wavy lines fanning out from a point off-screen, drawn on canvas.
     // The static SVG images stay as the fallback (no JS, or reduced motion).
     (function () {
       if (!window.requestAnimationFrame || !document.createElement('canvas').getContext) return;
       var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var TAU = Math.PI * 2, rad = Math.PI / 180;
+      var rad = Math.PI / 180, SEG = 28;
       var scenes = {
-        // Hero: a small loop on the left unfurling into a wide sweep; base size 1440 x 560.
-        hero: { w: 1440, h: 560, n: 96, color: '127,156,106', width: 2.6, fit: 'cover',
-          a: function (u, t) { var g = (-255 + 330 * u) * rad + t * 0.10; return [150 + 85 * Math.cos(g), 150 + 85 * Math.sin(g)]; },
-          b: function (u, t) { var g = (-74 + (78 + 5 * Math.sin(t * 0.23)) * u) * rad + 0.035 * Math.sin(t * 0.17); return [620 + 980 * Math.cos(g), 60 + 980 * Math.sin(g)]; },
-          alpha: function (u) { return 0.30 + 0.70 * Math.sin(Math.PI * (0.12 + 0.88 * u)); } },
-        // Band: a ring whose inner and outer edges turn against each other; base size 560 x 560.
-        band: { w: 560, h: 560, n: 120, color: '169,201,154', width: 2.2, fit: 'contain',
-          a: function (u, t) { var g = u * TAU + t * 0.16; var r = 62 + 10 * Math.sin(t * 0.31 + u * TAU); return [280 + r * Math.cos(g), 280 + r * Math.sin(g)]; },
-          b: function (u, t) { var g = u * TAU * 0.86 - 1.2 - t * 0.05; var r = 262 + 14 * Math.sin(u * TAU * 3 + t * 0.4); return [280 + r * Math.cos(g), 280 + r * Math.sin(g)]; },
-          alpha: function (u) { return 0.35 + 0.55 * (0.5 + 0.5 * Math.cos(u * TAU)); } }
+        // Hero: origin beyond the top-left corner, lines sweep across the whole section.
+        hero: { w: 1440, h: 760, n: 120, color: '110,142,90', width: 1.05, anchor: 'left', amp: 16, waves: 2.6,
+          a: function (u, t) { var g = (-30 + 130 * u) * rad + t * 0.05; return [-150 + 170 * Math.cos(g), -170 + 170 * Math.sin(g)]; },
+          b: function (u, t) { var g = (-22 + (104 + 4 * Math.sin(t * 0.21)) * u) * rad + 0.03 * Math.sin(t * 0.15); return [260 + 1650 * Math.cos(g), -120 + 1650 * Math.sin(g)]; },
+          alpha: function (u) { return 0.22 + 0.55 * Math.sin(Math.PI * u); } },
+        // Band: origin beyond the top-right corner, lines sweep down and to the left.
+        band: { w: 1440, h: 600, n: 110, color: '178,210,163', width: 1.0, anchor: 'right', amp: 14, waves: 2.2,
+          a: function (u, t) { var g = (60 + 130 * u) * rad - t * 0.05; return [1580 + 160 * Math.cos(g), -150 + 160 * Math.sin(g)]; },
+          b: function (u, t) { var g = (84 + (112 + 4 * Math.sin(t * 0.19)) * u) * rad + 0.03 * Math.sin(t * 0.13); return [1180 + 1650 * Math.cos(g), -140 + 1650 * Math.sin(g)]; },
+          alpha: function (u) { return 0.10 + 0.34 * Math.sin(Math.PI * u); } }
       };
       document.querySelectorAll('img[data-art]').forEach(function (img) {
         var sc = scenes[img.getAttribute('data-art')];
@@ -280,24 +282,32 @@
         var cv = document.createElement('canvas');
         cv.className = img.className; cv.setAttribute('aria-hidden', 'true');
         img.parentNode.insertBefore(cv, img); img.hidden = true;
-        var ctx = cv.getContext('2d'), W = 0, H = 0, k = 1, ox = 0, visible = true, t0 = null;
+        var ctx = cv.getContext('2d'), W = 0, H = 0, k = 1, ox = 0, visible = true, t0 = null, last = 0;
         function size() {
           var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
           W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          k = sc.fit === 'cover' ? Math.max(W / sc.w, H / sc.h) : Math.min(W / sc.w, H / sc.h);
-          ox = sc.fit === 'cover' ? 0 : (W - sc.w * k);
-          ctx.lineCap = 'round';
+          k = Math.max(W / sc.w, H / sc.h);
+          ox = sc.anchor === 'right' ? W - sc.w * k : 0;
+          ctx.lineCap = 'round'; ctx.lineJoin = 'round';
         }
-        var last = 0;
         function draw(t) {
           last = t;
           ctx.clearRect(0, 0, W, H);
-          ctx.lineWidth = Math.max(1, sc.width * Math.sqrt(k));
+          ctx.lineWidth = sc.width;
           for (var i = 0; i < sc.n; i++) {
             var u = i / (sc.n - 1), p = sc.a(u, t), q = sc.b(u, t);
+            var dx = q[0] - p[0], dy = q[1] - p[1], len = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / len, ny = dx / len;
             ctx.strokeStyle = 'rgba(' + sc.color + ',' + sc.alpha(u).toFixed(3) + ')';
-            ctx.beginPath(); ctx.moveTo(ox + p[0] * k, p[1] * k); ctx.lineTo(ox + q[0] * k, q[1] * k); ctx.stroke();
+            ctx.beginPath();
+            for (var j = 0; j <= SEG; j++) {
+              var s = j / SEG;
+              // Wave across the line, pinned at both ends and drifting over time.
+              var off = sc.amp * Math.sin(Math.PI * s) * Math.sin(s * sc.waves * Math.PI * 2 + u * 5 - t * 0.55);
+              var x = ox + (p[0] + dx * s + nx * off) * k, y = (p[1] + dy * s + ny * off) * k;
+              if (j) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+            }
+            ctx.stroke();
           }
         }
         function frame(ms) { if (t0 === null) t0 = ms; draw((ms - t0) / 1000); if (visible) requestAnimationFrame(frame); }

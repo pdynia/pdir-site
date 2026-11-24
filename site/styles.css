@@ -825,3 +825,23 @@ h3, h4 { font-family: var(--sans); font-weight: 400; color: var(--ink); letter-s
 /* Animated line art (canvas replaces the fallback images) */
 canvas.c-band-art { width: 380px; }
 @media (max-width: 960px) { canvas.c-band-art { width: 260px; } }
+
+/* Line art fills the whole section; text sits on a soft blurred mask */
+.c-hero { padding: 190px 0 72px; }
+canvas.c-hero-art { height: 100%; }
+.c-hero-text { position: relative; z-index: 0; display: inline-block; }
+.c-hero-text::before {
+  content: ""; position: absolute; z-index: -1; inset: -56px -90px -48px -70px;
+  background: rgba(251, 248, 242, 0.62);
+  -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
+  -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 58%, transparent 100%);
+}
+canvas.c-band-art { inset: 0; right: 0; top: 0; width: 100%; height: 100%; max-height: none; opacity: 1; }
+.c-band h2 { margin-bottom: 130px; }
+@media (max-width: 960px) { canvas.c-band-art { width: 100%; height: 100%; opacity: 1; } .c-band h2 { margin-bottom: 72px; } }
+@media (max-width: 760px) {
+  .c-hero { padding: 120px 0 48px; }
+  canvas.c-hero-art { height: 100%; }
+  .c-hero-text::before { inset: -40px -24px -32px -24px; }
+}

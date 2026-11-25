@@ -671,3 +671,13 @@ h3 { letter-spacing: -0.02em; }
   .hero-art { opacity: 0.7; }
   .hero-copy::before { inset: -28px -20px -20px -20px; -webkit-mask-image: radial-gradient(closest-side, #000 78%, transparent 100%); mask-image: radial-gradient(closest-side, #000 78%, transparent 100%); }
 }
+
+/* Facts row: a blurred band of the hero green behind it, fading in from the top */
+.facts { position: relative; z-index: 0; }
+.facts::before {
+  content: ""; position: absolute; z-index: -1; left: -100vw; right: -100vw; top: -36px; bottom: 0;
+  background: rgba(36, 57, 24, 0.84);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 44px);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 44px);
+}

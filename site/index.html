@@ -395,13 +395,15 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Hero line art: thin wavy lines fanning out from a point off-screen, drawn on canvas.
+    // Hero line art: thin lines fanning out from a point off-screen, drawn on canvas.
+    // They wave gently all the time and the whole fan rotates as the page scrolls.
     (function () {
       var cv = document.querySelector('canvas.hero-art');
       if (!cv || !cv.getContext || !window.requestAnimationFrame) return;
       var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var rad = Math.PI / 180, SEG = 28, N = 120, BW = 1440, BH = 700;
-      var ctx = cv.getContext('2d'), W = 0, H = 0, k = 1, ox = 0, last = 0;
+      var rad = Math.PI / 180, SEG = 28, N = 150, BW = 1440, BH = 700, MAX_ROT = 0.6;
+      var ctx = cv.getContext('2d'), W = 0, H = 0, k = 1, ox = 0;
+      var rot = 0, rotTarget = 0, wave = 0, visible = true, prev = null;
       function size() {
         var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
         W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
@@ -409,13 +411,12 @@
         k = Math.max(W / BW, H / BH); ox = W - BW * k;
         ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 1;
       }
-      function draw(t) {
-        last = t;
+      function draw() {
         ctx.clearRect(0, 0, W, H);
         for (var i = 0; i < N; i++) {
           var u = i / (N - 1);
-          // Origin beyond the top-right corner; far ends sweep down and to the left.
-          var ga = (60 + 130 * u) * rad - t * 0.05, gb = (84 + (112 + 4 * Math.sin(t * 0.19)) * u) * rad + 0.03 * Math.sin(t * 0.13);
+          // Origin beyond the top-right corner; the fan is wider than the view so it can rotate.
+          var ga = (50 + 170 * u) * rad - rot, gb = (80 + 150 * u) * rad - rot;
           var px = 1580 + 160 * Math.cos(ga), py = -150 + 160 * Math.sin(ga);
           var dx = 1180 + 1650 * Math.cos(gb) - px, dy = -140 + 1650 * Math.sin(gb) - py;
           var len = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / len, ny = dx / len;
@@ -423,30 +424,65 @@
           ctx.beginPath();
           for (var j = 0; j <= SEG; j++) {
             var s = j / SEG;
-            // Wave across the line, pinned at both ends and drifting over time.
-            var off = 14 * Math.sin(Math.PI * s) * Math.sin(s * 2.2 * Math.PI * 2 + u * 5 - t * 0.55);
+            // Slight wave across the line, pinned at both ends.
+            var off = 9 * Math.sin(Math.PI * s) * Math.sin(s * 2.2 * Math.PI * 2 + u * 5 - wave);
             var x = ox + (px + dx * s + nx * off) * k, y = (py + dy * s + ny * off) * k;
             if (j) ctx.lineTo(x, y); else ctx.moveTo(x, y);
           }
           ctx.stroke();
         }
       }
-      // Motion is driven by scrolling: each scrolled pixel advances the animation a little,
-      // and the lines ease to a stop when scrolling does.
-      var t = 0, target = 0, lastY = window.pageYOffset, running = false;
-      function frame() {
-        t += (target - t) * 0.07;
-        draw(t);
-        if (Math.abs(target - t) > 0.002) requestAnimationFrame(frame); else running = false;
+      function frame(ms) {
+        if (prev === null) prev = ms;
+        wave += Math.min(ms - prev, 100) / 1000 * 0.35; prev = ms;
+        rot += (rotTarget - rot) * 0.08;
+        draw();
+        if (visible) requestAnimationFrame(frame); else prev = null;
       }
-      size(); draw(0);
-      window.addEventListener('resize', function () { size(); draw(last); });
+      function onScroll() { rotTarget = Math.min(MAX_ROT, window.pageYOffset * 0.0008); }
+      size(); draw();
+      window.addEventListener('resize', function () { size(); draw(); });
       if (still) return;
-      window.addEventListener('scroll', function () {
-        var y = window.pageYOffset;
-        target += Math.abs(y - lastY) * 0.012; lastY = y;
-        if (!running) { running = true; requestAnimationFrame(frame); }
-      }, { passive: true });
+      onScroll(); rot = rotTarget;
+      window.addEventListener('scroll', onScroll, { passive: true });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (e) {
+          var now = e[0].isIntersecting;
+          if (now && !visible) { visible = true; requestAnimationFrame(frame); }
+          visible = now;
+        }).observe(cv);
+      }
+      requestAnimationFrame(frame);
+    })();
+
+    // Markets map: routes draw out from Dubai as the map scrolls into view,
+    // and the dotted Europe route flows with the scroll.
+    (function () {
+      var map = document.querySelector('.mena-map');
+      if (!map || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var arcs = [].slice.call(map.querySelectorAll('.map-arcs path'));
+      var dots = [].slice.call(map.querySelectorAll('.map-dots circle')).slice(0, arcs.length);
+      var labels = [].slice.call(map.querySelectorAll('.map-labels text')).slice(0, arcs.length);
+      var main = map.querySelector('.map-main');
+      arcs.forEach(function (a) { a.setAttribute('pathLength', '1'); a.style.strokeDasharray = '1'; });
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var r = map.getBoundingClientRect(), vh = window.innerHeight;
+        // 0 when the map's top reaches the bottom of the screen, 1 when it is well inside it.
+        var p = Math.max(0, Math.min(1, (vh - r.top) / (vh * 0.75)));
+        arcs.forEach(function (a, i) {
+          var q = Math.max(0, Math.min(1, p * 1.6 - (i / arcs.length) * 0.6));
+          a.style.strokeDashoffset = (1 - q).toFixed(3);
+          var o = Math.max(0, Math.min(1, (q - 0.85) / 0.15)).toFixed(2);
+          if (dots[i]) dots[i].style.opacity = o;
+          if (labels[i]) labels[i].style.opacity = o;
+        });
+        if (main) main.style.strokeDashoffset = (-window.pageYOffset * 0.12).toFixed(1);
+      }
+      window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+      window.addEventListener('resize', update);
+      update();
     })();
 
     // Mobile menu

@@ -233,7 +233,7 @@ TEMPLATE = """<!doctype html>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -292,18 +292,17 @@ TEMPLATE = """<!doctype html>
   </main>
 
   <footer class="site-footer">
-    <div class="wrap">
-      <nav class="footer-nav" aria-label="Footer">
-        <a href="index.html#about">About</a>
-        <a href="index.html#services">What we do</a>
-        <a href="products.html">Products</a>
-        <a href="index.html#markets">Markets</a>
-        <a href="index.html#contact">Contact</a>
+    <div class="wrap c-footer">
+      <img class="c-footer-logo" src="assets/pdir-logo.svg" alt="PDIR General Trading LLC" width="300" height="86">
+      <nav class="c-footer-cols" aria-label="Footer">
+        <div><h3>Company</h3><a href="index.html#about">About</a><a href="index.html#services">What we do</a><a href="index.html#markets">Markets</a><a href="index.html#contact">Contact</a></div>
+        <div><h3>Products</h3><a href="products.html#supplements">Food supplements</a><a href="products.html#books">Books</a><a href="products.html#other">Other products</a></div>
+        <div><h3>Connect</h3><a href="mailto:info@pdir.ae">info@pdir.ae</a><a href="tel:+97142431476">+971 4 243 1476</a><span>Madina Mall, 1st floor<br>Muhaisnah 4, Dubai, UAE</span></div>
       </nav>
-      <div class="footer-inner">
-        <p>&copy; 2026 PDIR General Trading LLC &middot; Dubai, UAE</p>
-        <p class="muted">Product range and images: visanto.com, updated {updated}.</p>
-      </div>
+    </div>
+    <div class="wrap footer-inner">
+      <p>&copy; 2026 PDIR General Trading LLC. All rights reserved.</p>
+      <p class="muted">Product range and images: visanto.com, updated {updated}.</p>
     </div>
   </footer>
   <script>

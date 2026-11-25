@@ -9,7 +9,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:opsz,wght@6..72,300;6..72,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -39,6 +39,7 @@
 
   <main id="top">
     <section class="hero">
+      <canvas class="hero-art" aria-hidden="true"></canvas>
       <div class="wrap hero-grid">
         <div class="hero-copy">
           <p class="eyebrow">Europe &rarr; Dubai &rarr; MENA</p>
@@ -48,10 +49,6 @@
             <a class="btn btn-light" href="products.html">View products</a>
             <a class="btn btn-outline" href="#contact">Become a stockist</a>
           </div>
-        </div>
-        <div class="hero-visual" aria-hidden="true">
-          <span class="hero-line"></span>
-          <img class="hero-photo" src="assets/studio/adek.webp" alt="" width="900" height="900">
         </div>
       </div>
       <div class="wrap">
@@ -381,23 +378,72 @@
   </main>
 
   <footer class="site-footer">
-    <div class="wrap">
-      <nav class="footer-nav" aria-label="Footer">
-        <a href="#about">About</a>
-        <a href="#services">What we do</a>
-        <a href="products.html">Products</a>
-        <a href="#markets">Markets</a>
-        <a href="#contact">Contact</a>
+    <div class="wrap c-footer">
+      <img class="c-footer-logo" src="assets/pdir-logo.svg" alt="PDIR General Trading LLC" width="300" height="86">
+      <nav class="c-footer-cols" aria-label="Footer">
+        <div><h3>Company</h3><a href="#about">About</a><a href="#services">What we do</a><a href="#markets">Markets</a><a href="#contact">Contact</a></div>
+        <div><h3>Products</h3><a href="products.html#supplements">Food supplements</a><a href="products.html#books">Books</a><a href="products.html#other">Other products</a></div>
+        <div><h3>Connect</h3><a href="mailto:info@pdir.ae">info@pdir.ae</a><a href="tel:+97142431476">+971 4 243 1476</a><span>Madina Mall, 1st floor<br>Muhaisnah 4, Dubai, UAE</span></div>
       </nav>
-      <div class="footer-inner">
-        <p>&copy; <span id="year">2026</span> PDIR General Trading LLC. All rights reserved.</p>
-        <p class="muted">Trade licence no. 969545 &middot; Dubai, UAE</p>
-      </div>
+    </div>
+    <div class="wrap footer-inner">
+      <p>&copy; <span id="year">2026</span> PDIR General Trading LLC. All rights reserved.</p>
+      <p class="muted">Trade licence no. 969545 &middot; Dubai, UAE</p>
     </div>
   </footer>
 
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Hero line art: thin wavy lines fanning out from a point off-screen, drawn on canvas.
+    (function () {
+      var cv = document.querySelector('canvas.hero-art');
+      if (!cv || !cv.getContext || !window.requestAnimationFrame) return;
+      var still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var rad = Math.PI / 180, SEG = 28, N = 120, BW = 1440, BH = 700;
+      var ctx = cv.getContext('2d'), W = 0, H = 0, k = 1, ox = 0, visible = true, t0 = null, last = 0;
+      function size() {
+        var r = cv.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = r.width; H = r.height; cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        k = Math.max(W / BW, H / BH); ox = W - BW * k;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 1;
+      }
+      function draw(t) {
+        last = t;
+        ctx.clearRect(0, 0, W, H);
+        for (var i = 0; i < N; i++) {
+          var u = i / (N - 1);
+          // Origin beyond the top-right corner; far ends sweep down and to the left.
+          var ga = (60 + 130 * u) * rad - t * 0.05, gb = (84 + (112 + 4 * Math.sin(t * 0.19)) * u) * rad + 0.03 * Math.sin(t * 0.13);
+          var px = 1580 + 160 * Math.cos(ga), py = -150 + 160 * Math.sin(ga);
+          var dx = 1180 + 1650 * Math.cos(gb) - px, dy = -140 + 1650 * Math.sin(gb) - py;
+          var len = Math.sqrt(dx * dx + dy * dy) || 1, nx = -dy / len, ny = dx / len;
+          ctx.strokeStyle = 'rgba(178,210,163,' + (0.16 + 0.5 * Math.sin(Math.PI * u)).toFixed(3) + ')';
+          ctx.beginPath();
+          for (var j = 0; j <= SEG; j++) {
+            var s = j / SEG;
+            // Wave across the line, pinned at both ends and drifting over time.
+            var off = 14 * Math.sin(Math.PI * s) * Math.sin(s * 2.2 * Math.PI * 2 + u * 5 - t * 0.55);
+            var x = ox + (px + dx * s + nx * off) * k, y = (py + dy * s + ny * off) * k;
+            if (j) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+          }
+          ctx.stroke();
+        }
+      }
+      function frame(ms) { if (t0 === null) t0 = ms; draw((ms - t0) / 1000); if (visible) requestAnimationFrame(frame); }
+      size(); draw(0);
+      window.addEventListener('resize', function () { size(); draw(last); });
+      if (still) return;
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (e) {
+          var now = e[0].isIntersecting;
+          if (now && !visible) { visible = true; requestAnimationFrame(frame); }
+          visible = now;
+        }).observe(cv);
+      }
+      requestAnimationFrame(frame);
+    })();
 
     // Mobile menu
     (function () {

@@ -597,3 +597,62 @@ h2 { font-size: clamp(1.9rem, 3.6vw, 2.9rem); letter-spacing: -0.02em; line-heig
 /* Honeypot field for spam bots: off-screen, never shown to people */
 .enquiry .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 .enquiry button:disabled { opacity: 0.6; cursor: default; }
+
+/* =====================================================================
+   Merged design: original layout, editorial typefaces, line-art hero,
+   column footer.
+   ===================================================================== */
+:root {
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: var(--sans);
+}
+body { font-family: var(--serif); }
+h1, h2 { font-family: var(--serif); font-weight: 300; letter-spacing: -0.035em; line-height: 1.04; }
+h3, h4, .nav, .btn, .eyebrow, .logo-micro, .menu-btn, .chip, .tile-name, .tile-count, .feat-name, .feat-meta,
+.facts dt, .ticker-row span, .spec dt, .spot-figure figcaption, .contact-list dt, .enquiry label, .enquiry input,
+.enquiry select, .enquiry textarea, .form-note, .range-more, .markets, .map-labels text, .group-title, .product h4,
+.product-quote, .product-ext, .latest-label, .step-num, .rail-btn, .skip, .site-footer { font-family: var(--sans); }
+h3 { letter-spacing: -0.02em; }
+.facts dd { font-family: var(--serif); font-weight: 300; font-size: 2.5rem; letter-spacing: -0.03em; }
+.lead { line-height: 1.4; }
+
+/* Hero: animated lines instead of the photo disc */
+.hero { position: relative; }
+.hero-art {
+  position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+  -webkit-mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 28%, #000 68%);
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.3) 28%, #000 68%);
+}
+.hero > .wrap { position: relative; z-index: 1; }
+.hero-grid { grid-template-columns: 1fr; }
+.hero-copy { max-width: 760px; padding-block: 40px 56px; }
+.hero h1 { max-width: 16ch; }
+
+/* Footer with logo and link columns */
+.site-footer { background: var(--tint); padding: 36px 0 24px; }
+.c-footer { display: grid; grid-template-columns: 1fr 2.6fr; gap: 40px; padding-bottom: 36px; }
+.c-footer-logo { width: 240px; height: auto; display: block; }
+.c-footer-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; font-size: 0.92rem; }
+.c-footer-cols div { display: grid; gap: 10px; align-content: start; justify-items: start; }
+.c-footer-cols h3 { font-size: 0.92rem; font-weight: 600; margin: 0 0 6px; letter-spacing: 0; color: var(--ink); }
+.c-footer-cols a { color: var(--ink); text-decoration: none; }
+.c-footer-cols a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.c-footer-cols span { color: var(--ink-soft); line-height: 1.4; }
+.footer-inner { font-size: 0.82rem; }
+
+/* Softer tile feedback on the products page: lift instead of a dark frame */
+.product:focus-within { outline: none; }
+.product:has(a:focus-visible) { outline: 1px solid rgba(31, 42, 24, 0.35); outline-offset: 3px; }
+
+@media (max-width: 760px) {
+  .hero-art { -webkit-mask-image: none; mask-image: none; opacity: 0.55; }
+  .hero-copy { padding-block: 16px 24px; }
+  .facts dd { font-size: 2rem; }
+  .c-footer { grid-template-columns: 1fr; gap: 28px; }
+  .c-footer-cols { grid-template-columns: 1fr 1fr; }
+}
+
+/* Menu: a thin vertical bar before each item, original header colours */
+.nav a:not(.nav-cta)::before { content: "|"; margin-right: 6px; opacity: 0.45; font-weight: 400; }
+@media (max-width: 760px) { .nav a:not(.nav-cta)::before { content: none; } }

@@ -681,3 +681,14 @@ h3 { letter-spacing: -0.02em; }
   -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 44px);
   mask-image: linear-gradient(to bottom, transparent 0, #000 44px);
 }
+
+/* Markets: linked highlight between the country list and the map */
+.markets li { cursor: default; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+.markets li.on { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+.markets li:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.map-arcs path { transition: opacity 0.2s ease, stroke-width 0.2s ease; }
+.map-arcs path.hot { opacity: 1; stroke-width: 2.2; }
+.map-dots circle, .map-hub { transition: fill 0.2s ease; }
+.map-dots circle.hot, .map-hub.hot { fill: var(--brand); }
+.map-labels text { cursor: default; transition: fill 0.2s ease; }
+.map-labels text.hot { fill: var(--brand); font-weight: 600; }

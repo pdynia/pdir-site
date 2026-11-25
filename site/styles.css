@@ -656,3 +656,18 @@ h3 { letter-spacing: -0.02em; }
 /* Menu: a thin vertical bar before each item, original header colours */
 .nav a:not(.nav-cta)::before { content: "|"; margin-right: 6px; opacity: 0.45; font-weight: 400; }
 @media (max-width: 760px) { .nav a:not(.nav-cta)::before { content: none; } }
+
+/* Hero text sits on a soft blurred patch of the hero green so the lines never cross the letters sharply */
+.hero-art { -webkit-mask-image: none; mask-image: none; }
+.hero-copy { z-index: 0; }
+.hero-copy::before {
+  content: ""; position: absolute; z-index: -1; inset: -40px -110px -36px -90px;
+  background: rgba(36, 57, 24, 0.82);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+}
+@media (max-width: 760px) {
+  .hero-art { opacity: 0.7; }
+  .hero-copy::before { inset: -28px -20px -20px -20px; -webkit-mask-image: radial-gradient(closest-side, #000 78%, transparent 100%); mask-image: radial-gradient(closest-side, #000 78%, transparent 100%); }
+}

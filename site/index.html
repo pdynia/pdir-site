@@ -497,7 +497,7 @@
       var arcs = [].slice.call(map.querySelectorAll('.map-arcs path'));
       var dots = [].slice.call(map.querySelectorAll('.map-dots circle')).slice(0, arcs.length);
       var labels = [].slice.call(map.querySelectorAll('.map-labels text')).slice(0, arcs.length);
-      var hub = map.querySelector('.map-hub'), items = {}, index = {};
+      var hub = map.querySelector('.map-hub'), items = {}, index = {}, running = [];
       [].slice.call(list.children).forEach(function (li) { items[li.textContent.trim()] = li; });
       labels.forEach(function (l, i) { index[l.textContent.trim()] = i; });
       function set(name, on) {
@@ -506,9 +506,14 @@
         if (name === 'United Arab Emirates') { if (hub) hub.classList.toggle('hot', on); return; }
         if (i === undefined) return;
         arcs[i].classList.toggle('hot', on); dots[i].classList.toggle('hot', on); labels[i].classList.toggle('hot', on);
-        if (on && !still && arcs[i].animate) {
+        if (still || !arcs[i].animate) return;
+        // While pointed at, the route keeps drawing from Dubai out to the country, over and over.
+        if (running[i]) { running[i].cancel(); running[i] = null; }
+        if (on) {
           if (!arcs[i].hasAttribute('pathLength')) { arcs[i].setAttribute('pathLength', '1'); arcs[i].style.strokeDasharray = '1'; }
-          arcs[i].animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 650, easing: 'ease-out' });
+          running[i] = arcs[i].animate(
+            [{ strokeDashoffset: 1 }, { strokeDashoffset: 0, offset: 0.7 }, { strokeDashoffset: 0 }],
+            { duration: 1100, easing: 'ease-out', iterations: Infinity });
         }
       }
       function bind(el, name) {
